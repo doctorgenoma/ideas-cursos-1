@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+
+<!-- ============================================================
+     ⚙️  CONFIGURA AQUÍ EL NOMBRE DE ESTA APP  ⚙️
+     Se usa en el título de la pestaña del navegador y como nombre
+     del acceso directo al añadirla a la pantalla de inicio.
+============================================================ -->
+<meta name="app-config-title" content="">
+<title id="pageTitle">IDEA VAULT // Captura rápida para Obsidian</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- ============================================================
+     🎨  ICONO DE LA APP  🎨
+     Coloca tu imagen (cuadrada, mínimo 512x512 px) junto a este
+     archivo con el nombre "icon.png". No hace falta tocar nada más:
+     el mismo archivo se usa para iOS, Android y el favicon.
+     Si quieres usar otro nombre de archivo, cámbialo en las 3
+     líneas marcadas con 👉 y en manifest.json.
+============================================================ -->
+<link rel="apple-touch-icon" href="icon.png">                       <!-- 👉 -->
+<link rel="icon" type="image/png" href="icon.png">                  <!-- 👉 -->
+<link rel="manifest" href="manifest.json">                          <!-- 👉 -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Idea Vault">
+<meta name="theme-color" content="#1D2B53">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     PALETA 8-BIT (estilo PICO-8)
+     ============================================================ */
+  :root{
+    --black:      #000000;
+    --deep-blue:  #1D2B53;
+    --purple:     #7E2553;
+    --dark-green: #008751;
+    --brown:      #AB5236;
+    --dark-gray:  #5F574F;
+    --light-gray: #C2C3C7;
+    --white:      #FFF1E8;
+    --red:        #FF004D;
+    --orange:     #FFA300;
+    --yellow:     #FFEC27;
+    --green:      #00E436;
+    --blue:       #29ADFF;
+    --indigo:     #83769C;
+    --pink:       #FF77A8;
+  }
+
+  *{ box-sizing:border-box; }
+
+  body{
+    margin:0;
+    min-height:100vh;
+    background:var(--deep-blue);
+    background-image:
+      repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 4px);
+    color:var(--white);
+    font-family:'VT323', monospace;
+    font-size:22px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    image-rendering:pixelated;
+  }
+
+  .console{
+    width:100%;
+    max-width:460px;
+    background:var(--black);
+    border:6px solid var(--white);
+    box-shadow: 0 0 0 6px var(--black), 8px 8px 0 6px rgba(0,0,0,0.5);
+    padding:18px;
+  }
+
+  .screen{
+    background:#0a0a1a;
+    border:4px solid var(--dark-gray);
+    box-shadow: inset 0 0 0 4px var(--black), inset 0 0 20px rgba(0,228,54,0.08);
+    padding:16px;
+  }
+
+  /* ---------- Logo de la app (usa el mismo icon.png) ---------- */
+  .app-logo{
+    display:block;
+    width:64px;
+    height:64px;
+    margin:0 auto 10px auto;
+    image-rendering:pixelated;
+    border:3px solid var(--dark-gray);
+  }
+
+  .cartridge-label{
+    font-family:'Press Start 2P', monospace;
+    font-size:9px;
+    color:var(--indigo);
+    text-align:center;
+    letter-spacing:1px;
+    margin-bottom:6px;
+  }
+
+  h1{
+    font-family:'Press Start 2P', monospace;
+    font-size:15px;
+    line-height:1.6;
+    color:var(--yellow);
+    text-align:center;
+    text-shadow: 2px 2px 0 var(--brown);
+    margin:0 0 16px 0;
+    word-break:break-word;
+  }
+
+  /* ---------- Pestañas de notas ---------- */
+  .tabs{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    justify-content:center;
+    margin-bottom:16px;
+  }
+  .tab{
+    font-family:'Press Start 2P', monospace;
+    font-size:8px;
+    padding:8px 10px;
+    background:var(--dark-gray);
+    color:var(--light-gray);
+    border:3px solid var(--black);
+    box-shadow: 3px 3px 0 var(--black);
+    cursor:pointer;
+    user-select:none;
+  }
+  .tab:hover{ background:var(--indigo); }
+  .tab.active{
+    background:var(--dark-green);
+    color:var(--white);
+    box-shadow: 1px 1px 0 var(--black);
+    transform:translate(2px,2px);
+  }
+
+  /* ---------- Formulario ---------- */
+  textarea{
+    width:100%;
+    min-height:70px;
+    resize:vertical;
+    background:var(--black);
+    color:var(--green);
+    caret-color:var(--green);
+    border:3px solid var(--light-gray);
+    box-shadow: inset 3px 3px 0 rgba(255,255,255,0.05);
+    font-family:'VT323', monospace;
+    font-size:22px;
+    padding:10px;
+    outline:none;
+  }
+  textarea:focus{ border-color:var(--yellow); }
+  textarea::placeholder{ color:var(--dark-gray); }
+
+  .btn-row{
+    display:flex;
+    gap:10px;
+    margin-top:12px;
+  }
+
+  button{
+    font-family:'Press Start 2P', monospace;
+    font-size:10px;
+    padding:14px 10px;
+    border:none;
+    cursor:pointer;
+    color:var(--black);
+  }
+
+  .btn-add{
+    flex:1;
+    background:var(--green);
+    box-shadow: 0 5px 0 var(--dark-green);
+  }
+  .btn-add:active{
+    box-shadow: 0 2px 0 var(--dark-green);
+    transform:translateY(3px);
+  }
+
+  .btn-cfg{
+    background:var(--orange);
+    box-shadow: 0 5px 0 var(--brown);
+    width:52px;
+  }
+  .btn-cfg:active{
+    box-shadow: 0 2px 0 var(--brown);
+    transform:translateY(3px);
+  }
+
+  /* ---------- Registro tipo lista de la compra ---------- */
+  .log-title{
+    font-family:'Press Start 2P', monospace;
+    font-size:8px;
+    color:var(--pink);
+    margin:20px 0 8px 0;
+    text-align:center;
+  }
+  .log{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    max-height:160px;
+    overflow-y:auto;
+    padding-right:4px;
+  }
+  .log-item{
+    display:flex;
+    align-items:flex-start;
+    gap:8px;
+    background:rgba(255,255,255,0.03);
+    border-left:4px solid var(--green);
+    padding:6px 8px;
+    animation: slide-in 0.25s steps(6) both;
+  }
+  .log-item .box{
+    color:var(--green);
+    font-family:'VT323', monospace;
+    font-size:22px;
+    line-height:1;
+  }
+  @keyframes slide-in{
+    from{ transform:translateX(30px); opacity:0; }
+    to{ transform:translateX(0); opacity:1; }
+  }
+
+  .toast{
+    font-family:'Press Start 2P', monospace;
+    font-size:9px;
+    color:var(--dark-green);
+    text-align:center;
+    height:14px;
+    margin-top:10px;
+    visibility:hidden;
+  }
+  .toast.show{ visibility:visible; }
+
+  /* ---------- Modal de configuración ---------- */
+  .modal-bg{
+    position:fixed; inset:0;
+    background:rgba(0,0,0,0.75);
+    display:none;
+    align-items:center; justify-content:center;
+    padding:20px;
+    z-index:10;
+  }
+  .modal-bg.open{ display:flex; }
+  .modal{
+    background:var(--black);
+    border:5px solid var(--white);
+    box-shadow: 6px 6px 0 var(--purple);
+    padding:18px;
+    max-width:420px;
+    width:100%;
+    font-size:18px;
+  }
+  .modal h2{
+    font-family:'Press Start 2P', monospace;
+    font-size:11px;
+    color:var(--yellow);
+    margin-top:0;
+  }
+  .modal p{ color:var(--light-gray); line-height:1.5; }
+  .modal code{
+    background:#111;
+    color:var(--green);
+    padding:1px 4px;
+  }
+  .modal-close{
+    margin-top:10px;
+    width:100%;
+    background:var(--red);
+    color:var(--white);
+    box-shadow:0 5px 0 var(--purple);
+  }
+  .modal-close:active{ box-shadow:0 2px 0 var(--purple); transform:translateY(3px); }
+</style>
+</head>
+<body>
+
+<div class="console">
+  <div class="screen">
+    <img class="app-logo" src="icon.png" alt="Logo de la app">
+    <div class="cartridge-label">◆ IDEA VAULT CARTRIDGE ◆</div>
+    <h1 id="noteTitle">—</h1>
+
+    <div class="tabs" id="tabs"></div>
+
+    <textarea id="ideaInput" placeholder="Escribe tu idea..." autofocus></textarea>
+
+    <div class="btn-row">
+      <button class="btn-add" id="addBtn">➜ AÑADIR</button>
+      <button class="btn-cfg" id="cfgBtn" title="Cómo configurar notas">?</button>
+    </div>
+
+    <div class="toast" id="toast">¡GUARDADO EN OBSIDIAN!</div>
+
+    <div class="log-title">— ÚLTIMAS IDEAS DE ESTA SESIÓN —</div>
+    <div class="log" id="log"></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h2>CONFIGURAR NOTAS</h2>
+    <p>
+      Este cartucho usa el plugin comunitario <code>Advanced URI</code>
+      (instálalo desde Ajustes → Community plugins) para insertar tu idea
+      al principio o al final de la nota.
+    </p>
+    <p>
+      Para añadir o cambiar notas, abre este archivo <code>.html</code> con un editor
+      de texto y edita la lista <code>NOTES</code> al principio del
+      bloque <code>&lt;script&gt;</code>. Cada nota necesita:
+    </p>
+    <p>
+      <code>name</code> → título que verás en la cabecera<br>
+      <code>vault</code> → nombre exacto de tu vault<br>
+      <code>file</code> → ruta de la nota dentro del vault, sin ".md"<br>
+      <code>mode</code> → "prepend" (inicio) o "append" (final)
+    </p>
+    <p>Para cambiar el icono, sustituye el archivo <code>icon.png</code> de esta carpeta por tu diseño (cuadrado, mínimo 512x512 px).</p>
+    <p>Guarda y recarga la página: aparecerá una pestaña nueva por cada nota.</p>
+    <button class="modal-close" id="modalClose">ENTENDIDO</button>
+  </div>
+</div>
+
+<script>
+  /* ============================================================
+     ⚙️  CONFIGURA AQUÍ ESTA APP  ⚙️
+  ============================================================ */
+
+  // Nombre de esta app (aparece en el título de la pestaña y como
+  // nombre del acceso directo en la pantalla de inicio)
+  const APP_NAME = "Idea Vault";
+
+  // Añade tantos bloques como notas quieras enlazar desde esta app.
+  // - name  : lo que se muestra en la cabecera y en la pestaña
+  // - vault : nombre EXACTO de tu vault de Obsidian
+  // - file  : ruta de la nota relativa a la raíz del vault, SIN ".md"
+  // - mode  : "prepend" (al inicio) o "append" (al final)
+  //
+  // Requiere el plugin comunitario "Advanced URI" instalado y activado
+  // en Obsidian (Ajustes → Community plugins → busca "Advanced URI").
+  const NOTES = [
+    {
+      name: "1-Anécdotas",
+      vault: "Podcasting",
+      file: "UPEA/1-Anécdotas",
+      mode: "prepend"
+    },
+    {
+      name: "2-Tema principal",
+      vault: "Podcasting",
+      file: "UPEA/2-Tema principal",
+      mode: "prepend"
+    },
+    {
+      name: "3-Recomendaciones",
+      vault: "Podcasting",
+      file: "UPEA/3-Recomendaciones",
+      mode: "prepend"
+    }
+    // 👉 copia el bloque de arriba y pégalo aquí para añadir otra nota
+  ];
+  /* ============================================================ */
+
+  document.title = APP_NAME;
+  document.querySelector('meta[name="apple-mobile-web-app-title"]').setAttribute('content', APP_NAME);
+
+  let activeIndex = 0;
+  const sessionLog = NOTES.map(() => []);
+
+  const tabsEl   = document.getElementById('tabs');
+  const titleEl  = document.getElementById('noteTitle');
+  const inputEl  = document.getElementById('ideaInput');
+  const logEl    = document.getElementById('log');
+  const toastEl  = document.getElementById('toast');
+
+  function renderTabs(){
+    tabsEl.innerHTML = '';
+    if (NOTES.length <= 1) return; // no hace falta mostrar pestañas para una sola nota
+    NOTES.forEach((note, i) => {
+      const tab = document.createElement('div');
+      tab.className = 'tab' + (i === activeIndex ? ' active' : '');
+      tab.textContent = note.name.toUpperCase();
+      tab.addEventListener('click', () => {
+        activeIndex = i;
+        render();
+      });
+      tabsEl.appendChild(tab);
+    });
+  }
+
+  function renderLog(){
+    logEl.innerHTML = '';
+    sessionLog[activeIndex].slice().reverse().forEach(text => {
+      const row = document.createElement('div');
+      row.className = 'log-item';
+      row.innerHTML = '<span class="box">[x]</span><span>' + escapeHtml(text) + '</span>';
+      logEl.appendChild(row);
+    });
+  }
+
+  function render(){
+    titleEl.textContent = NOTES[activeIndex].name;
+    renderTabs();
+    renderLog();
+    inputEl.focus();
+  }
+
+  function escapeHtml(str){
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function showToast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => toastEl.classList.remove('show'), 2200);
+  }
+
+  function addIdea(){
+    const text = inputEl.value.trim();
+    if (!text) return;
+
+    const note = NOTES[activeIndex];
+    const mode = note.mode === "append" ? "append" : "prepend";
+    // Salto de línea a un lado u otro para no pegar la idea a la línea existente
+    const data = mode === "prepend" ? (text_line() + "\n") : ("\n" + text_line());
+
+    function text_line(){ return "- [ ] " + text; }
+
+    // Importante: usamos encodeURIComponent a mano (no URLSearchParams),
+    // porque URLSearchParams codifica los espacios como "+" y Obsidian
+    // los interpreta literalmente en vez de como espacio.
+    // Usa el plugin "Advanced URI" (obsidian://advanced-uri), que es el
+    // único que soporta insertar al principio de la nota (mode=prepend).
+    const uri = "obsidian://advanced-uri"
+      + "?vault=" + encodeURIComponent(note.vault)
+      + "&filepath=" + encodeURIComponent(note.file)
+      + "&data=" + encodeURIComponent(data)
+      + "&mode=" + mode;
+
+    window.location.href = uri;
+
+    sessionLog[activeIndex].push(text);
+    renderLog();
+    inputEl.value = '';
+    inputEl.focus();
+    showToast('¡GUARDADO EN OBSIDIAN!');
+  }
+
+  document.getElementById('addBtn').addEventListener('click', addIdea);
+  inputEl.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey){
+      e.preventDefault();
+      addIdea();
+    }
+  });
+
+  document.getElementById('cfgBtn').addEventListener('click', () => {
+    document.getElementById('modalBg').classList.add('open');
+  });
+  document.getElementById('modalClose').addEventListener('click', () => {
+    document.getElementById('modalBg').classList.remove('open');
+  });
+
+  render();
+</script>
+</body>
+</html>
