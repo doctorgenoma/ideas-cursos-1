@@ -1,6 +1,6 @@
 {
-  "name": "Idea Vault",
-  "short_name": "Idea Vault",
+  "name": "Curso Obsidian",
+  "short_name": "Curso Obsidian",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#1D2B53",
