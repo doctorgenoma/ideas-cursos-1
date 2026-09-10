@@ -244,6 +244,17 @@
   }
   .toast.show{ visibility:visible; }
 
+  .debug-link{
+    font-family:'VT323', monospace;
+    font-size:15px;
+    color:var(--indigo);
+    word-break:break-all;
+    text-align:center;
+    margin-top:6px;
+    line-height:1.3;
+  }
+  .debug-link a{ color:var(--blue); }
+
   /* ---------- Modal de configuración ---------- */
   .modal-bg{
     position:fixed; inset:0;
@@ -304,6 +315,8 @@
 
     <div class="toast" id="toast">¡GUARDADO EN OBSIDIAN!</div>
 
+    <div class="debug-link" id="debugLink"></div>
+
     <div class="log-title">— ÚLTIMAS IDEAS DE ESTA SESIÓN —</div>
     <div class="log" id="log"></div>
   </div>
@@ -352,22 +365,22 @@
   // Requiere el plugin comunitario "Advanced URI" instalado y activado
   // en Obsidian (Ajustes → Community plugins → busca "Advanced URI").
   const NOTES = [
-   {
-      name: "Ideas OBSIDIAN",
-      vault: "Investigación",
-      file: "PROYECTOS/UCCI+i/Cerebro digital/Ideas OBSIDIAN",
+    {
+      name: "1-Anécdotas",
+      vault: "Podcasting",
+      file: "UPEA/1-Anécdotas",
       mode: "prepend"
     },
     {
-      name: "Enlaces OBSIDIAN",
-      vault: "Investigación",
-      file: "PROYECTOS/UCCI+i/Cerebro digital/Enlaces OBSIDIAN",
+      name: "2-Tema principal",
+      vault: "Podcasting",
+      file: "UPEA/2-Tema principal",
       mode: "prepend"
     },
     {
-      name: "Configuración interesante",
-      vault: "Investigación",
-      file: "PROYECTOS/UCCI+i/Cerebro digital/Configuración interesante",
+      name: "3-Recomendaciones",
+      vault: "Podcasting",
+      file: "UPEA/3-Recomendaciones",
       mode: "prepend"
     }
     // 👉 copia el bloque de arriba y pégalo aquí para añadir otra nota
@@ -463,6 +476,11 @@
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+
+    // Enlace visible para poder copiarlo/probarlo a mano si algo falla.
+    console.log('URI generada:', uri);
+    document.getElementById('debugLink').innerHTML =
+      'Enlace generado (pulsa para probarlo a mano):<br><a href="' + uri + '">' + uri + '</a>';
 
     sessionLog[activeIndex].push(text);
     renderLog();
