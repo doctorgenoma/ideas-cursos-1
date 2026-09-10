@@ -366,21 +366,21 @@
   // en Obsidian (Ajustes → Community plugins → busca "Advanced URI").
   const NOTES = [
     {
-      name: "1-Anécdotas",
-      vault: "Podcasting",
-      file: "UPEA/1-Anécdotas",
+      name: "Ideas OBSIDIAN",
+      vault: "Investigación",
+      file: "PROYECTOS/UCCI+i/Cerebro digital/Ideas OBSIDIAN",
       mode: "prepend"
     },
     {
-      name: "2-Tema principal",
-      vault: "Podcasting",
-      file: "UPEA/2-Tema principal",
+      name: "Enlaces OBSIDIAN",
+      vault: "Investigación",
+      file: "PROYECTOS/UCCI+i/Cerebro digital/Enlaces OBSIDIAN",
       mode: "prepend"
     },
     {
-      name: "3-Recomendaciones",
-      vault: "Podcasting",
-      file: "UPEA/3-Recomendaciones",
+      name: "Configuración interesante",
+      vault: "Investigación",
+      file: "PROYECTOS/UCCI+i/Cerebro digital/Configuración interesante",
       mode: "prepend"
     }
     // 👉 copia el bloque de arriba y pégalo aquí para añadir otra nota
@@ -455,14 +455,25 @@
 
     function text_line(){ return "- [ ] " + text; }
 
+    // Obsidian (sobre todo en iOS) suele guardar los nombres con tildes
+    // en forma "descompuesta" (NFD: la letra y el acento como dos
+    // caracteres separados) en vez de la forma "compuesta" habitual
+    // (NFC: un solo carácter con tilde). Si no coinciden exactamente,
+    // Advanced URI no encuentra el archivo y falla en silencio.
+    function toObsidianText(str){ return str.normalize('NFD'); }
+
+    const vault = toObsidianText(note.vault);
+    let filePath = toObsidianText(note.file);
+    if (!filePath.toLowerCase().endsWith('.md')) filePath += '.md';
+
     // Importante: usamos encodeURIComponent a mano (no URLSearchParams),
     // porque URLSearchParams codifica los espacios como "+" y Obsidian
     // los interpreta literalmente en vez de como espacio.
-    // Usa el plugin "Advanced URI" (obsidian://advanced-uri), que es el
+    // Usa el plugin "Advanced URI" (esquema corto: adv-uri), que es el
     // único que soporta insertar al principio de la nota (mode=prepend).
-    const uri = "obsidian://advanced-uri"
-      + "?vault=" + encodeURIComponent(note.vault)
-      + "&filepath=" + encodeURIComponent(note.file)
+    const uri = "obsidian://adv-uri"
+      + "?vault=" + encodeURIComponent(vault)
+      + "&filepath=" + encodeURIComponent(filePath)
       + "&data=" + encodeURIComponent(data)
       + "&mode=" + mode;
 
