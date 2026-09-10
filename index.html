@@ -341,7 +341,7 @@
 
   // Nombre de esta app (aparece en el título de la pestaña y como
   // nombre del acceso directo en la pantalla de inicio)
-  const APP_NAME = "Curso Obsidian";
+  const APP_NAME = "Idea Vault";
 
   // Añade tantos bloques como notas quieras enlazar desde esta app.
   // - name  : lo que se muestra en la cabecera y en la pestaña
@@ -352,7 +352,7 @@
   // Requiere el plugin comunitario "Advanced URI" instalado y activado
   // en Obsidian (Ajustes → Community plugins → busca "Advanced URI").
   const NOTES = [
-    {
+   {
       name: "Ideas OBSIDIAN",
       vault: "Investigación",
       file: "PROYECTOS/UCCI+i/Cerebro digital/Ideas OBSIDIAN",
@@ -453,7 +453,16 @@
       + "&data=" + encodeURIComponent(data)
       + "&mode=" + mode;
 
-    window.location.href = uri;
+    // En iOS, cuando la app se añade a la pantalla de inicio con un
+    // manifest.json válido, se abre en modo "standalone" a pantalla
+    // completa. En ese modo, iOS bloquea la navegación a esquemas
+    // personalizados (obsidian://) hecha con window.location.href.
+    // Simulamos un clic real sobre un enlace <a>, que sí funciona.
+    const link = document.createElement('a');
+    link.href = uri;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 
     sessionLog[activeIndex].push(text);
     renderLog();
